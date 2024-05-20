@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CompressionTool": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Users\\dimip\\source\\repos\\CompressionTool\\CompressionTool\\135-0.txt"
+    }
+  }
+}
