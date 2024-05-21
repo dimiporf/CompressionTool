@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace CompressionTool
@@ -45,19 +46,26 @@ namespace CompressionTool
                 string outputFilePath = GetOutputFilePath(inputFilePath);
 
                 // Write the header (frequency table) and encoded data to the output file
-                using (var writer = new StreamWriter(outputFilePath))
+                using (var writer = new BinaryWriter(File.Open(outputFilePath, FileMode.Create)))
                 {
+                    // Write the number of distinct characters in the frequency table
+                    writer.Write(frequencies.Count);
+
                     // Write the frequency table
                     foreach (var kvp in frequencies)
                     {
-                        writer.WriteLine($"{kvp.Key}:{kvp.Value}");
+                        writer.Write(kvp.Key);
+                        writer.Write(kvp.Value);
                     }
 
                     // Write a marker to indicate the end of the header section
-                    writer.WriteLine("HEADER_END");
+                    writer.Write("HEADER_END");
 
-                    // Write the encoded text
-                    writer.WriteLine(encodedText);
+                    // Write the length of the encoded text
+                    writer.Write(encodedText.Length);
+
+                    // Write the encoded text as binary data
+                    WriteEncodedText(writer, encodedText);
                 }
 
                 Console.WriteLine($"File compressed successfully and saved to {outputFilePath}");
@@ -69,7 +77,7 @@ namespace CompressionTool
             }
         }
 
-        // Method to encode the text remains the same
+        // Method to encode the text using the Huffman codes
         public static string EncodeText(string text, Dictionary<char, string> huffmanCodes)
         {
             var encodedText = new System.Text.StringBuilder();
@@ -83,6 +91,20 @@ namespace CompressionTool
             return encodedText.ToString();
         }
 
+        // Method to write the encoded text to the output file
+        private static void WriteEncodedText(BinaryWriter writer, string encodedText)
+        {
+            // Pad the encoded text to ensure it's a multiple of 8
+            encodedText = encodedText.PadRight((encodedText.Length + 7) / 8 * 8, '0');
+
+            // Convert the bit string to bytes and write to the output file
+            for (int i = 0; i < encodedText.Length; i += 8)
+            {
+                string byteString = encodedText.Substring(i, 8);
+                writer.Write(Convert.ToByte(byteString, 2));
+            }
+        }
+
         // Method to get the output file path based on the input file path
         private static string GetOutputFilePath(string inputFilePath)
         {
@@ -92,8 +114,8 @@ namespace CompressionTool
             // Get the filename without extension
             string fileName = Path.GetFileNameWithoutExtension(inputFilePath);
 
-            // Append "_compressed.txt" to the filename
-            string outputFileName = $"{fileName}_compressed.txt";
+            // Append "_compressed.bin" to the filename
+            string outputFileName = $"{fileName}_compressed.bin";
 
             // Combine directory and output file name to get the output file path
             return Path.Combine(directory, outputFileName);

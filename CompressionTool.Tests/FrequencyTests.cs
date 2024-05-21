@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Xunit;
 using CompressionTool;
 
-
 namespace CompressionTool.Tests
 {
-    public class FrequencyTests
+    public class CompressionTests
     {
         [Fact]
         public void CalculateFrequencies_ShouldReturnCorrectFrequencies()
@@ -78,15 +78,12 @@ namespace CompressionTool.Tests
             // Act
             var root = HuffmanHelper.BuildHuffmanTree(frequencies);
 
-            // Check that the root is not null and has the correct frequency
             // Assert
-            
             Assert.NotNull(root);
-            Assert.Equal(100, root.Frequency);            
+            Assert.Equal(100, root.Frequency);
             Assert.Null(root.Character);
             Assert.NotNull(root.Left);
             Assert.NotNull(root.Right);
-
             // Additional asserts can be added to verify the structure of the tree
         }
 
@@ -140,5 +137,24 @@ namespace CompressionTool.Tests
             Assert.Equal("HEADER_END", lines[3]);
             Assert.Equal("000101011", lines[4]);
         }
+
+        //[Fact]
+        //public void DecodeText_ShouldDecodeCorrectly()
+        //{
+        //    // Arrange
+        //    string encodedText = "000101011";
+        //    var huffmanCodes = new Dictionary<char, string>
+        //    {
+        //        { 'a', "0" },
+        //        { 'b', "10" },
+        //        { 'c', "11" }
+        //    };
+
+        //    // Act
+        //    string decodedText = CompressionTool.Program.DecodeText(encodedText, huffmanCodes);
+
+        //    // Assert
+        //    Assert.Equal("aaabbc", decodedText);
+        //}
     }
 }
