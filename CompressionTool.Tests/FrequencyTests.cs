@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Xunit;
 using CompressionTool;
+using static CompressionTool.HuffmanHelper;
 
 namespace CompressionTool.Tests
 {
@@ -100,7 +101,7 @@ namespace CompressionTool.Tests
             };
 
             // Act
-            string encodedText = CompressionTool.Program.EncodeText(input, huffmanCodes);
+            string encodedText = HuffmanEncoder.EncodeText(input, huffmanCodes);
 
             // Assert
             Assert.Equal("000101011", encodedText);
@@ -138,23 +139,60 @@ namespace CompressionTool.Tests
             Assert.Equal("000101011", lines[4]);
         }
 
+        [Fact]
+        public void DecodeText_ShouldDecodeCorrectly()
+        {
+            // Arrange
+            string encodedText = "000101011";
+            var huffmanCodes = new Dictionary<char, string>
+    {
+        { 'a', "0" },
+        { 'b', "10" },
+        { 'c', "11" }
+    };
+
+            string expectedDecodedText = "aaabbc";
+            string actualDecodedText = "";
+
+            // Act
+            string currentCode = "";
+            foreach (var bit in encodedText)
+            {
+                currentCode += bit;
+                if (huffmanCodes.ContainsValue(currentCode))
+                {
+                    actualDecodedText += huffmanCodes.FirstOrDefault(x => x.Value == currentCode).Key;
+                    currentCode = "";
+                }
+            }
+
+            // Assert
+            Assert.Equal(expectedDecodedText, actualDecodedText);
+        }
+
         //[Fact]
-        //public void DecodeText_ShouldDecodeCorrectly()
+        //public void Decode_ShouldDecodeAndWriteToFileCorrectly()
         //{
         //    // Arrange
+        //    string encodedFilePath = "encoded.txt";
+        //    string outputFilePath = "decoded.txt";
         //    string encodedText = "000101011";
-        //    var huffmanCodes = new Dictionary<char, string>
+        //    var prefixTable = new Dictionary<char, string>
         //    {
         //        { 'a', "0" },
         //        { 'b', "10" },
         //        { 'c', "11" }
         //    };
 
+        //    File.WriteAllText(encodedFilePath, encodedText);
+
         //    // Act
-        //    string decodedText = CompressionTool.Program.DecodeText(encodedText, huffmanCodes);
+        //    HuffmanDecoder.Decode(encodedFilePath, outputFilePath, prefixTable);
 
         //    // Assert
-        //    Assert.Equal("aaabbc", decodedText);
+        //    Assert.Equal("aaabbc", File.ReadAllText(outputFilePath));
         //}
+
+
     }
 }
