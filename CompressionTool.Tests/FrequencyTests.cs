@@ -170,28 +170,41 @@ namespace CompressionTool.Tests
             Assert.Equal(expectedDecodedText, actualDecodedText);
         }
 
-        //[Fact]
-        //public void Decode_ShouldDecodeAndWriteToFileCorrectly()
-        //{
-        //    // Arrange
-        //    string encodedFilePath = "encoded.txt";
-        //    string outputFilePath = "decoded.txt";
-        //    string encodedText = "000101011";
-        //    var prefixTable = new Dictionary<char, string>
-        //    {
-        //        { 'a', "0" },
-        //        { 'b', "10" },
-        //        { 'c', "11" }
-        //    };
+        [Fact]
+        public void Decode_ShouldDecodeAndWriteToFileCorrectly()
+        {
+            // Arrange
+            string encodedFilePath = "encoded.bin";
+            string outputFilePath = "decoded.txt";
+            var prefixTable = new Dictionary<char, string>
+            {
+                { 'a', "0" },
+                { 'b', "10" },
+                { 'c', "11" }
+            };
 
-        //    File.WriteAllText(encodedFilePath, encodedText);
+            byte[] encodedBytes = HuffmanEncoder.GetBytesFromBinaryString("0001011", out int paddingBits);
+            using (var writer = new BinaryWriter(File.Open(encodedFilePath, FileMode.Create)))
+            {
+                writer.Write(prefixTable.Count);
+                foreach (var kvp in prefixTable)
+                {
+                    writer.Write(kvp.Key);
+                    writer.Write(kvp.Value);
+                }
+                writer.Write("HEADER_END");
+                writer.Write(encodedBytes.Length);
+                writer.Write(paddingBits);
+                writer.Write(encodedBytes);
+            }
 
-        //    // Act
-        //    HuffmanDecoder.Decode(encodedFilePath, outputFilePath, prefixTable);
+            // Act
+            HuffmanDecoder.Decode(encodedFilePath, outputFilePath);
 
-        //    // Assert
-        //    Assert.Equal("aaabbc", File.ReadAllText(outputFilePath));
-        //}
+            // Assert
+            Assert.Equal("aaabbc", File.ReadAllText(outputFilePath));
+        }
+
 
 
     }

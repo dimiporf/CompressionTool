@@ -41,17 +41,8 @@ namespace CompressionTool
                 // Read the entire content of the input file
                 string text = File.ReadAllText(inputFilePath);
 
-                // Calculate the frequency of each character in the text
-                var frequencies = FrequencyCalculator.CalculateFrequencies(text);
-
-                // Build the Huffman tree based on character frequencies
-                var huffmanTreeRoot = HuffmanHelper.BuildHuffmanTree(frequencies);
-
-                // Generate the prefix-code table from the Huffman tree
-                var huffmanCodes = HuffmanHelper.GenerateCodes(huffmanTreeRoot);
-
-                // Encode the text using the prefix-code table
-                HuffmanEncoder.Encode(text, huffmanCodes, outputFilePath);
+                // Encode the text using Huffman encoding and write to the output file
+                HuffmanEncoder.Encode(text, outputFilePath);
 
                 // Decompress the output file
                 string decompressedFilePath = Path.Combine(outputFolderPath, "decompressed.txt");

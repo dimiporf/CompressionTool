@@ -9,54 +9,60 @@ namespace CompressionTool
     {
         public static void Decode(string encodedFilePath, string outputFilePath)
         {
-            // Read the encoded data from the file
             Dictionary<char, string> huffmanCodes;
-            string encodedText;
-            ReadEncodedData(encodedFilePath, out huffmanCodes, out encodedText);
+            byte[] encodedData;
+            int paddingBits;
+            ReadEncodedData(encodedFilePath, out huffmanCodes, out encodedData, out paddingBits);
 
-            // Decode the encoded data using the prefix table
-            string decodedText = DecodeText(encodedText, huffmanCodes);
+            string decodedText = DecodeData(encodedData, huffmanCodes, paddingBits);
 
-            // Write the decoded text to the output file
             File.WriteAllText(outputFilePath, decodedText);
         }
 
-        private static void ReadEncodedData(string encodedFilePath, out Dictionary<char, string> huffmanCodes, out string encodedText)
+        private static void ReadEncodedData(string encodedFilePath, out Dictionary<char, string> huffmanCodes, out byte[] encodedData, out int paddingBits)
         {
             using (var reader = new BinaryReader(File.Open(encodedFilePath, FileMode.Open)))
             {
-                // Read the number of characters in the huffmanCodes dictionary
                 int count = reader.ReadInt32();
 
-                // Read each character and its corresponding Huffman code
-                huffmanCodes = new Dictionary<char, string>();
+                var frequencies = new Dictionary<char, int>();
                 for (int i = 0; i < count; i++)
                 {
                     char character = reader.ReadChar();
-                    string code = reader.ReadString();
-                    huffmanCodes[character] = code;
+                    int frequency = reader.ReadInt32();
+                    frequencies[character] = frequency;
                 }
 
-                // Read the encoded text
-                encodedText = reader.ReadString();
+                string headerEnd = reader.ReadString();
+                if (headerEnd != "HEADER_END")
+                {
+                    throw new Exception("Invalid header format.");
+                }
+
+                int encodedDataLength = reader.ReadInt32();
+                paddingBits = reader.ReadInt32();
+                encodedData = reader.ReadBytes(encodedDataLength);
+
+                var huffmanTreeRoot = HuffmanHelper.BuildHuffmanTree(frequencies);
+                huffmanCodes = HuffmanHelper.GenerateCodes(huffmanTreeRoot);
             }
         }
 
-        private static string DecodeText(string encodedText, Dictionary<char, string> huffmanCodes)
+        private static string DecodeData(byte[] encodedData, Dictionary<char, string> huffmanCodes, int paddingBits)
         {
             StringBuilder decodedText = new StringBuilder();
             StringBuilder currentCode = new StringBuilder();
 
-            foreach (char bit in encodedText)
+            string binaryString = GetBinaryStringFromBytes(encodedData, paddingBits);
+
+            foreach (char bit in binaryString)
             {
                 currentCode.Append(bit);
 
-                // Check if the current code matches any prefix in the prefix table
                 foreach (var kvp in huffmanCodes)
                 {
                     if (kvp.Value == currentCode.ToString())
                     {
-                        // If a match is found, append the corresponding character to the decoded text
                         decodedText.Append(kvp.Key);
                         currentCode.Clear();
                         break;
@@ -65,6 +71,23 @@ namespace CompressionTool
             }
 
             return decodedText.ToString();
+        }
+
+        private static string GetBinaryStringFromBytes(byte[] bytes, int paddingBits)
+        {
+            StringBuilder binaryString = new StringBuilder();
+
+            foreach (byte b in bytes)
+            {
+                binaryString.Append(Convert.ToString(b, 2).PadLeft(8, '0'));
+            }
+
+            if (paddingBits > 0)
+            {
+                binaryString.Length -= paddingBits;
+            }
+
+            return binaryString.ToString();
         }
     }
 }

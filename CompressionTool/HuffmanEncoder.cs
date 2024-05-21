@@ -7,18 +7,19 @@ namespace CompressionTool
 {
     public static class HuffmanEncoder
     {
-        public static void Encode(string text, Dictionary<char, string> huffmanCodes, string outputFilePath)
+        public static void Encode(string text, string outputFilePath)
         {
-            // Encode the text using the prefix-code table
-            string encodedText = EncodeText(text, huffmanCodes);
+            var frequencies = FrequencyCalculator.CalculateFrequencies(text);
+            var huffmanTreeRoot = HuffmanHelper.BuildHuffmanTree(frequencies);
+            var huffmanCodes = HuffmanHelper.GenerateCodes(huffmanTreeRoot);
 
-            // Write the encoded text to the output file
-            WriteEncodedData(outputFilePath, huffmanCodes, encodedText);
+            var encodedText = EncodeText(text, huffmanCodes);
+            WriteEncodedData(outputFilePath, frequencies, encodedText);
         }
 
         public static string EncodeText(string text, Dictionary<char, string> huffmanCodes)
         {
-            StringBuilder encodedText = new StringBuilder();
+            var encodedText = new StringBuilder();
 
             foreach (char c in text)
             {
@@ -28,23 +29,43 @@ namespace CompressionTool
             return encodedText.ToString();
         }
 
-        public static void WriteEncodedData(string outputFilePath, Dictionary<char, string> huffmanCodes, string encodedText)
+        public static void WriteEncodedData(string outputFilePath, Dictionary<char, int> frequencies, string encodedText)
         {
             using (var writer = new BinaryWriter(File.Open(outputFilePath, FileMode.Create)))
             {
-                // Write the number of characters in the huffmanCodes dictionary
-                writer.Write(huffmanCodes.Count);
+                writer.Write(frequencies.Count);
 
-                // Write each character and its corresponding Huffman code
-                foreach (var kvp in huffmanCodes)
+                foreach (var kvp in frequencies)
                 {
                     writer.Write(kvp.Key);
                     writer.Write(kvp.Value);
                 }
 
-                // Write the encoded text
-                writer.Write(encodedText);
+                writer.Write("HEADER_END");
+
+                byte[] encodedBytes = GetBytesFromBinaryString(encodedText, out int paddingBits);
+                writer.Write(encodedBytes.Length);
+                writer.Write(paddingBits);
+                writer.Write(encodedBytes);
             }
+        }
+
+        public static byte[] GetBytesFromBinaryString(string binaryString, out int paddingBits)
+        {
+            int numOfBytes = (binaryString.Length + 7) / 8;
+            byte[] bytes = new byte[numOfBytes];
+            paddingBits = 8 - (binaryString.Length % 8);
+            paddingBits = paddingBits == 8 ? 0 : paddingBits;
+
+            for (int i = 0; i < binaryString.Length; i++)
+            {
+                if (binaryString[i] == '1')
+                {
+                    bytes[i / 8] |= (byte)(1 << (7 - (i % 8)));
+                }
+            }
+
+            return bytes;
         }
     }
 }
