@@ -77,9 +77,11 @@ namespace CompressionTool.Tests
             // Act
             var root = HuffmanHelper.BuildHuffmanTree(frequencies);
 
+            // Check that the root is not null and has the correct frequency
             // Assert
+            
             Assert.NotNull(root);
-            Assert.Equal(100, root.Frequency);
+            Assert.Equal(100, root.Frequency);            
             Assert.Null(root.Character);
             Assert.NotNull(root.Left);
             Assert.NotNull(root.Right);

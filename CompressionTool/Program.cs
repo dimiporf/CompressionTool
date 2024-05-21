@@ -8,16 +8,17 @@ namespace CompressionTool
     {
         static void Main(string[] args)
         {
-            // Check if the user provided a filename as an argument
+            // Check if a filename was provided as a command-line argument
             if (args.Length == 0)
             {
                 Console.WriteLine("Please provide a filename as a command-line argument.");
                 return;
             }
 
-            string filePath = args[0]; // Get the file path from the command-line arguments
+            // Get the file path from the command-line arguments
+            string filePath = args[0];
 
-            // Check if the file exists
+            // Check if the specified file exists
             if (!File.Exists(filePath))
             {
                 Console.WriteLine("The specified file does not exist.");
@@ -26,27 +27,21 @@ namespace CompressionTool
 
             try
             {
-                // Read the entire content of the text file
+                // Read the entire content of the file
                 string text = File.ReadAllText(filePath);
 
                 // Calculate the frequency of each character in the text
                 var frequencies = FrequencyCalculator.CalculateFrequencies(text);
 
-                // Print frequencies to the console (for testing purposes)
+                // Print the character frequencies to the console
                 foreach (var kvp in frequencies)
                 {
                     Console.WriteLine($"{kvp.Key}: {kvp.Value}");
                 }
-
-                // Optional: Validate test values (debugging aid)
-                if (frequencies.ContainsKey('X') && frequencies.ContainsKey('t'))
-                {
-                    Console.WriteLine($"'X': {frequencies['X']}, 't': {frequencies['t']}");
-                }
             }
             catch (Exception ex)
             {
-                // Handle any errors that may occur during file reading
+                // Handle any errors that occur during file reading
                 Console.WriteLine($"An error occurred while reading the file: {ex.Message}");
             }
         }
