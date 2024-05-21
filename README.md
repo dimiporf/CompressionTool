@@ -41,7 +41,16 @@ Replace <inputfile> with the path to the text file you want to compress and <out
 * __Decompression:__ It decompresses the compressed binary file back to its original text form.
   
 * __Validation:__ It validates whether the decompressed text matches the original text, ensuring lossless compression and decompression.
-  
+
+## Learning Outcomes
+
+__By tampering with CompressionTool's code, users can expect to gain the following knowledge and skills:__
+
+* Understanding of Huffman coding and its application in lossless data compression.
+* Proficiency in implementing Huffman encoding and decoding algorithms.
+* Familiarity with binary file handling in C#.
+* Ability to validate data integrity through compression and decompression processes.
+* Experience with command-line interface (CLI) tools for file compression and decompression.
 
 ## Contributing
 
