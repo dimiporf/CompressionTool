@@ -30,7 +30,7 @@ namespace CompressionTool
                 string text = File.ReadAllText(filePath);
 
                 // Calculate the frequency of each character in the text
-                var frequencies = HuffmanHelper.CalculateFrequencies(text);
+                var frequencies = FrequencyCalculator.CalculateFrequencies(text);
 
                 // Print frequencies to the console (for testing purposes)
                 foreach (var kvp in frequencies)

@@ -20,7 +20,7 @@ namespace CompressionTool.Tests
             };
 
             // Act
-            var actualFrequencies = HuffmanHelper.CalculateFrequencies(testData);
+            var actualFrequencies = FrequencyCalculator.CalculateFrequencies(testData);
 
             // Assert
             Assert.Equal(expectedFrequencies, actualFrequencies);
@@ -34,7 +34,7 @@ namespace CompressionTool.Tests
             var expectedFrequencies = new Dictionary<char, int>();
 
             // Act
-            var actualFrequencies = HuffmanHelper.CalculateFrequencies(testData);
+            var actualFrequencies = FrequencyCalculator.CalculateFrequencies(testData);
 
             // Assert
             Assert.Equal(expectedFrequencies, actualFrequencies);
@@ -54,10 +54,37 @@ namespace CompressionTool.Tests
             };
 
             // Act
-            var actualFrequencies = HuffmanHelper.CalculateFrequencies(testData);
+            var actualFrequencies = FrequencyCalculator.CalculateFrequencies(testData);
 
             // Assert
             Assert.Equal(expectedFrequencies, actualFrequencies);
+        }
+
+        [Fact]
+        public void BuildHuffmanTree_ShouldBuildCorrectTree()
+        {
+            // Arrange
+            var frequencies = new Dictionary<char, int>
+            {
+                { 'a', 5 },
+                { 'b', 9 },
+                { 'c', 12 },
+                { 'd', 13 },
+                { 'e', 16 },
+                { 'f', 45 }
+            };
+
+            // Act
+            var root = HuffmanHelper.BuildHuffmanTree(frequencies);
+
+            // Assert
+            Assert.NotNull(root);
+            Assert.Equal(100, root.Frequency);
+            Assert.Null(root.Character);
+            Assert.NotNull(root.Left);
+            Assert.NotNull(root.Right);
+
+            // Additional asserts can be added to verify the structure of the tree
         }
     }
 }

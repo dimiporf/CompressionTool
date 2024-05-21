@@ -1,36 +1,40 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CompressionTool
 {
     public static class HuffmanHelper
     {
-        /// <summary>
-        /// Calculates the frequency of each character in the given text.
-        /// </summary>
-        /// <param name="text">The input text for which to calculate character frequencies.</param>
-        /// <returns>A dictionary where keys are characters and values are their respective frequencies.</returns>
-        public static Dictionary<char, int> CalculateFrequencies(string text)
+        public class HuffmanNode
         {
-            // Initialize an empty dictionary to store character frequencies
-            var frequencyDict = new Dictionary<char, int>();
+            public char? Character { get; set; }
+            public int Frequency { get; set; }
+            public HuffmanNode Left { get; set; }
+            public HuffmanNode Right { get; set; }
+        }
 
-            // Iterate through each character in the text
-            foreach (char c in text)
+        public static HuffmanNode BuildHuffmanTree(Dictionary<char, int> frequencies)
+        {
+            var nodes = frequencies.Select(kv => new HuffmanNode { Character = kv.Key, Frequency = kv.Value }).ToList();
+            var queue = new PriorityQueue<HuffmanNode>(nodes, (x, y) => x.Frequency.CompareTo(y.Frequency));
+
+            while (queue.Count > 1)
             {
-                // If the character is already in the dictionary, increment its count
-                if (frequencyDict.ContainsKey(c))
+                var left = queue.Dequeue();
+                var right = queue.Dequeue();
+
+                var newNode = new HuffmanNode
                 {
-                    frequencyDict[c]++;
-                }
-                // Otherwise, add the character to the dictionary with a count of 1
-                else
-                {
-                    frequencyDict[c] = 1;
-                }
+                    Frequency = left.Frequency + right.Frequency,
+                    Left = left,
+                    Right = right
+                };
+
+                queue.Enqueue(newNode);
             }
 
-            // Return the dictionary containing character frequencies
-            return frequencyDict;
+            return queue.Dequeue();
         }
     }
 }
