@@ -33,16 +33,22 @@ namespace CompressionTool
                 // Calculate the frequency of each character in the text
                 var frequencies = FrequencyCalculator.CalculateFrequencies(text);
 
-                // Print the character frequencies to the console
-                foreach (var kvp in frequencies)
+                // Build the Huffman tree based on character frequencies
+                var huffmanTreeRoot = HuffmanHelper.BuildHuffmanTree(frequencies);
+
+                // Generate the prefix-code table from the Huffman tree
+                var huffmanCodes = HuffmanHelper.GenerateCodes(huffmanTreeRoot);
+
+                // Print the Huffman codes to the console
+                foreach (var kvp in huffmanCodes)
                 {
                     Console.WriteLine($"{kvp.Key}: {kvp.Value}");
                 }
             }
             catch (Exception ex)
             {
-                // Handle any errors that occur during file reading
-                Console.WriteLine($"An error occurred while reading the file: {ex.Message}");
+                // Handle any errors that occur during file reading or processing
+                Console.WriteLine($"An error occurred: {ex.Message}");
             }
         }
     }
